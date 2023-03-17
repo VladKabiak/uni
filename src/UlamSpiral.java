@@ -49,7 +49,7 @@ public class UlamSpiral extends Frame {
     }
 
     private void getNextPrimeNumber(int primeNumber) {
-
+        //getting next prime number
     }
 
     public static void main(String[] args){
