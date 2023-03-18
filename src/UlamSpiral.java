@@ -1,22 +1,38 @@
 import java.awt.*;
+import java.io.*;
 
 public class UlamSpiral extends Frame {
-    public UlamSpiral(){
-        setSize(640, 480);
-        setVisible(true);
-    }
-
+    BinaryPrimeReader reader = null;
+    int nextPrime;
     enum direction {
         TOP, BOTTOM, LEFT, RIGHT
     }
+    public UlamSpiral(){
+        setSize(640, 480);
+        setVisible(true);
 
-    int primeNumber;
+    }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         Dimension dim = this.getSize();
-        getNextPrimeNumber(primeNumber);
+        Primes creator = new Primes( (int) (dim.getHeight()*dim.getWidth()*10), "primes.bin");
+        File file = new File("primes.bin");
+        if (!((dim.getHeight()*dim.getWidth()*10) == creator.getN() && file.exists())){
+            try {
+                creator.createBinary();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        try {
+            reader = new BinaryPrimeReader("primes.bin");
+            nextPrime = reader.readNextInt();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         int x = (int) dim.getWidth() / 2, y = (int) dim.getHeight() / 2, repeats = 1, counter = 1;
         this.drawSpiral(g, x, y, direction.RIGHT, repeats, counter);
     }
@@ -36,10 +52,13 @@ public class UlamSpiral extends Frame {
 
     private void drawPixel(Graphics g, int x, int y, int repeats, int incrementX, int incrementY, int counter, direction nextDir) {
         for (int i = 0; i < repeats; i++) {
-            if (counter == primeNumber) {
+            if (counter == nextPrime) {
                 g.fillRect(x, y, 1, 1);
-                getNextPrimeNumber(primeNumber);
-
+                try {
+                    nextPrime = reader.readNextInt();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
             ++counter;
             x += incrementX;
@@ -48,11 +67,7 @@ public class UlamSpiral extends Frame {
         this.drawSpiral(g, x, y, nextDir, ++repeats, counter);
     }
 
-    private void getNextPrimeNumber(int primeNumber) {
-        //getting next prime number
-    }
-
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new UlamSpiral();
     }
 }
