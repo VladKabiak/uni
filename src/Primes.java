@@ -10,21 +10,15 @@ public class Primes {
         this.url = url;
     }
 
-    public int getN() {
-        return n;
-    }
-
     public void createBinary() throws IOException {
         FileOutputStream fos = new FileOutputStream(url);
-        DataOutputStream dos = new DataOutputStream(fos);
-
         boolean[] isPrime = new boolean[n + 1];
+        int count = 0, firstByteNumsIndex = 0, numBytes = 1;
+        int[] firstByteNums = {2, 256, 65536, 16777216};
 
         for (int i = 2; i <= n; i++) {
             isPrime[i] = true;
         }
-
-        int count = 0;
 
         for (int i = 2; i * i <= n; i++) {
             if (isPrime[i]) {
@@ -38,42 +32,19 @@ public class Primes {
             if (isPrime[i]) {
                 count++;
             }
-            if (i < 256) {
-                if (i == 255 || i == n-1) {
-                    dos.writeLong(count);
-                    for (int j = 2; j <= i; j++) {
-                        if (isPrime[j]) {
-                            dos.write(getBytes(j, 1));
-                        }
+            if (i == n-1 || i == 255 || i == 65535 || i == 16777215) {
+                fos.write(getBytes(count, 8));
+                for (int j = firstByteNums[firstByteNumsIndex]; j <= i; j++) {
+                    if (isPrime[j]) {
+                        fos.write(getBytes(j, numBytes));
                     }
-                    dos.writeByte('\n');
-                    count = 0;
                 }
-            } else if (i < 65536) {
-                if (i == 65535 || i == n-1) {
-                    dos.writeLong(count);
-                    for (int j = 257; j <= i; j++) {
-                        if (isPrime[j]) {
-                            dos.write(getBytes(j, 2));
-                        }
-                    }
-                    dos.writeByte('\n');
-                    count = 0;
-                }
-            } else if (i < 16777216) {
-                if (i == 16777215 || i == n-1) {
-                    dos.writeLong(count);
-                    for (int j = 65536; j <= i; j++) {
-                        if (isPrime[j]) {
-                            dos.write(getBytes(j, 3));
-                        }
-                    }
-                    dos.writeByte('\n');
-                    count = 0;
-                }
+                fos.write('\n');
+                count = 0;
+                numBytes++;
+                ++firstByteNumsIndex;
             }
         }
-        dos.close();
         fos.close();
     }
 

@@ -8,9 +8,8 @@ public class UlamSpiral extends Frame {
         TOP, BOTTOM, LEFT, RIGHT
     }
     public UlamSpiral(){
-        setSize(640, 480);
+        setSize(64000, 48000);
         setVisible(true);
-
     }
 
     @Override
@@ -19,7 +18,7 @@ public class UlamSpiral extends Frame {
         Dimension dim = this.getSize();
         Primes creator = new Primes( (int) (dim.getHeight()*dim.getWidth()*10), "primes.bin");
         File file = new File("primes.bin");
-        if (!((dim.getHeight()*dim.getWidth()*10) == creator.getN() && file.exists())){
+        if (!file.exists()){
             try {
                 creator.createBinary();
             } catch (IOException e) {

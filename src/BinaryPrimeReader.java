@@ -2,36 +2,48 @@ import java.io.*;
 
 public class BinaryPrimeReader {
     private int numBytes = 1;
-    private final DataInputStream inputStream;
+    private final FileInputStream inputStream;
     private int numPrimes;
 
 
 
     public BinaryPrimeReader(String url) throws IOException{
-        this.inputStream = new DataInputStream(new FileInputStream(url));
-        this.numPrimes = (int) inputStream.readLong();
+        this.inputStream = new FileInputStream(url);
+        this.numPrimes = getIntFromBytes(8);
     }
 
     public int readNextInt() throws IOException {
-        int result;
-        if (numBytes == 1){
-            // read Unsigned 1 byte value
-            result = inputStream.readUnsignedByte();
-        } else if (numBytes == 2) {
-            // read Unsigned 2 byte value
-            result = inputStream.readUnsignedShort();
-        } else {
-            result = ((inputStream.readUnsignedByte() & 0xF) << 16) | ((inputStream.readUnsignedByte() & 0xFF) << 8) | (inputStream.readUnsignedByte() & 0xFF);
-        }
+        int result = getIntFromBytes(numBytes);
         --numPrimes;
         // if prime numbers has ended getting data for the next number of bytes
         if (numPrimes == 0) {
             // Skip the newline character
-            inputStream.skipBytes(1);
+            inputStream.read();
             // Get the number of prime numbers consisting of numBytes++
-            numPrimes = (int) inputStream.readLong();
+            numPrimes = getIntFromBytes(8);
             numBytes++;
         }
+        return result;
+    }
+
+    private int getIntFromBytes(int numBytes) {
+        byte[] bytes = new byte[numBytes];
+
+        for (int i = 0; i < numBytes; i++) {
+            try {
+                bytes[i] = (byte) inputStream.read();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        int result = 0;
+
+        for (byte aByte : bytes) {
+            result <<= 8;
+            result |= (aByte & 0xff);
+        }
+
         return result;
     }
 }
